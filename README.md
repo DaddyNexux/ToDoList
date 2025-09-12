@@ -1,4 +1,7 @@
 This project is Created By 
-Osama F. Eltayef 
-Aya M. Hisham 
+
+Osama F. Eltayef (Backend Dev.)
+
+Aya M. Hisham  (Frontend Dev.) 
+
 For education purposes (Web summer training) UOITC 
