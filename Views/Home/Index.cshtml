@@ -1,0 +1,826 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            background-color: #f7f9fc;
+            color: #34356bff;
+            text-align: center;
+        }
+
+        .border-box {
+            display: inline-block; /* يخلي البوكس قد النص بس */
+            border: 3px solid #34356bff;
+            padding: 70px;
+            margin-top: 80px;
+            border-radius: 10px; /* يخلي الزوايا مدوّرة */
+            background: #edf7f5ff; /* خلفية بيضة جوة البوكس */
+        }
+
+        h1 {
+            color: #34356bff;
+        }
+        a {
+            text-decoration: none;
+            margin: 5px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            background: #a3ade2ff;
+            color: white;
+        }
+
+        .add-todo-form {
+            margin: 20px 0;
+        }
+
+        .add-todo-form input {
+            margin: 5px;
+            padding: 8px 12px;
+            border: 2px solid #34356bff;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .add-todo-form button {
+            margin: 5px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background: #a3ade2ff;
+            color: white;
+            cursor: pointer;
+        }
+
+        .todo-item {
+            background: white;
+            border: 2px solid #34356bff;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: left;
+        }
+
+        .todo-item.completed {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .todo-item.completed .todo-title {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .todo-title {
+            font-weight: bold;
+            color: #34356bff;
+            margin-bottom: 5px;
+        }
+
+        .todo-description {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .todo-actions {
+            margin-top: 10px;
+        }
+
+        .btn {
+            margin: 2px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-complete {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-edit {
+            background: #34356bff;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #34356bff;
+            color: white;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+
+        .welcome-message {
+            margin-bottom: 20px;
+            color: #666;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        .auth-links {
+            margin-top: 20px;
+        }
+
+        .auth-links a {
+            margin: 5px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            background: #a3ade2ff;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .auth-links a:hover {
+            background: #8a94d1ff;
+        }
+
+        .logout-btn {
+            background: #34356bff !important;
+        }
+
+        .logout-btn:hover {
+            background: #c82333 !important;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #f7f9fc;
+            margin: 10% auto;
+            padding: 30px;
+            border: 3px solid #34356bff;
+            border-radius: 10px;
+            width: 400px;
+            max-width: 90%;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            color: #34356bff;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .close {
+            color: #34356bff;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #dc3545;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #34356bff;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #34356bff;
+            border-radius: 5px;
+            background: white;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-modal {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #a3ade2ff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #8a94d1ff;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        /* Checkbox Styles */
+        .todo-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .todo-title-with-checkbox {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .todo-title-text {
+            flex: 1;
+            font-weight: bold;
+            color: #34356bff;
+        }
+
+        .todo-item.completed .todo-title-text {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="border-box">
+        <img src="myphoto.png" alt="ToDo Icon" width="150">
+        <h1>📝 To Do List</h1>
+        <div id="welcomeMessage" style="margin-bottom: 20px; color: #666; font-style: italic;"></div>
+
+        <div id="message"></div>
+
+        <div style="margin: 20px 0;">
+            <button onclick="openAddModal()" class="btn btn-primary" style="padding: 12px 24px; font-size: 16px;">+ Add New Todo</button>
+        </div>
+
+        <div id="todoList">
+            <div class="loading">Loading todos...</div>
+        </div>
+
+        <div class="auth-links">
+            <a href="#" onclick="logout()" id="logoutBtn" class="logout-btn" style="display: none;">Logout</a>
+            <a href="/login" id="loginBtn">Login</a>
+            <a href="/register" id="registerBtn">Register</a>
+        </div>
+    </div>
+
+    <!-- Add Todo Modal -->
+    <div id="addTodoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Todo</h3>
+                <span class="close" onclick="closeModal('addTodoModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="modalTodoTitle">Title *</label>
+                    <input type="text" id="modalTodoTitle" placeholder="Enter todo title..." maxlength="100" required>
+                </div>
+                <div class="form-group">
+                    <label for="modalTodoDescription">Description</label>
+                    <textarea id="modalTodoDescription" placeholder="Enter description..." maxlength="500"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-secondary" onclick="closeModal('addTodoModal')">Cancel</button>
+                <button class="btn-modal btn-primary" onclick="saveTodo()">Add Todo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Todo Modal -->
+    <div id="editTodoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Todo</h3>
+                <span class="close" onclick="closeModal('editTodoModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editModalTodoTitle">Title *</label>
+                    <input type="text" id="editModalTodoTitle" placeholder="Enter todo title..." maxlength="100" required>
+                </div>
+                <div class="form-group">
+                    <label for="editModalTodoDescription">Description</label>
+                    <textarea id="editModalTodoDescription" placeholder="Enter description..." maxlength="500"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-secondary" onclick="closeModal('editTodoModal')">Cancel</button>
+                <button class="btn-modal btn-primary" onclick="updateTodoFromModal()">Update Todo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = '/api/ToDoList';
+        let AUTH_TOKEN = localStorage.getItem('token') || '';
+        let currentUser = null;
+
+        let todos = [];
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadTodos();
+        });
+                document.addEventListener('DOMContentLoaded', () => {
+            redirectIfNotLoggedIn();
+        });
+                function redirectIfNotLoggedIn() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                // No token found → redirect to login
+                window.location.href = '/login';
+            }
+        }
+        // Check authentication status and update UI
+        function checkAuthStatus() {
+            const token = localStorage.getItem('token');
+            const username = localStorage.getItem('username');
+            
+            if (token && username) {
+                AUTH_TOKEN = token;
+                currentUser = username;
+                updateAuthUI(true);
+            } else {
+                updateAuthUI(false);
+            }
+        }
+
+        // Update UI based on authentication status
+        function updateAuthUI(isAuthenticated) {
+            const logoutBtn = document.getElementById('logoutBtn');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            
+            if (isAuthenticated) {
+                logoutBtn.style.display = 'inline-block';
+                loginBtn.style.display = 'none';
+                registerBtn.style.display = 'none';
+                welcomeMessage.textContent = `Welcome back, ${currentUser}!`;
+            } else {
+                logoutBtn.style.display = 'none';
+                loginBtn.style.display = 'inline-block';
+                registerBtn.style.display = 'inline-block';
+                welcomeMessage.textContent = 'Please login to manage your todos';
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            AUTH_TOKEN = '';
+            currentUser = null;
+            updateAuthUI(false);
+            todos = [];
+            displayTodos();
+            showMessage('Logged out successfully!', 'success');
+            
+            // Redirect to login page
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+        }
+
+        // Load todos from API
+        async function loadTodos() {
+            if (!AUTH_TOKEN) {
+                displayTodos(); // Show empty list for non-authenticated users
+                return;
+            }
+
+            try {
+                showMessage('Loading todos...', 'info');
+
+                const response = await fetch(`${API_BASE_URL}/my`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': '*/*',
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        // Token expired or invalid
+                        logout();
+                        showMessage('Session expired. Please login again.', 'error');
+                        return;
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.isSuccess) {
+                    todos = result.data || [];
+                    displayTodos();
+                    showMessage('Todos loaded successfully!', 'success');
+                } else {
+                    throw new Error(result.message || 'Failed to load todos');
+                }
+            } catch (error) {
+                console.error('Error loading todos:', error);
+                showMessage(`Error loading todos: ${error.message}`, 'error');
+                displayTodos(); // Show empty list
+            }
+        }
+
+        // Display todos in the UI
+        function displayTodos() {
+            const todoList = document.getElementById('todoList');
+
+            if (!AUTH_TOKEN) {
+                todoList.innerHTML = '<div class="loading">Please login to view and manage your todos.</div>';
+                return;
+            }
+
+            if (todos.length === 0) {
+                todoList.innerHTML = '<div class="loading">No todos found. Add one above!</div>';
+                return;
+            }
+
+            todoList.innerHTML = todos.map(todo => `
+                <div class="todo-item ${todo.isCompleted ? 'completed' : ''}" data-id="${todo.id}">
+                    <div class="todo-title-with-checkbox">
+                        <input type="checkbox" class="todo-checkbox" ${todo.isCompleted ? 'checked' : ''} 
+                               onchange="toggleTodo('${todo.id}')">
+                        <div class="todo-title-text">${escapeHtml(todo.title)}</div>
+                    </div>
+                    <div class="todo-description">${escapeHtml(todo.description)}</div>
+                    <div class="todo-actions">
+                        <button class="btn btn-edit" onclick="openEditModal('${todo.id}')">Edit</button>
+                        <button class="btn btn-delete" onclick="deleteTodo('${todo.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Add new todo from modal
+        async function saveTodo() {
+            if (!AUTH_TOKEN) {
+                showMessage('Please login to add todos', 'error');
+                return;
+            }
+
+            const title = document.getElementById('modalTodoTitle').value.trim();
+            const description = document.getElementById('modalTodoDescription').value.trim();
+
+            if (!title) {
+                showMessage('Please enter a todo title', 'error');
+                return;
+            }
+
+            try {
+                showMessage('Adding todo...', 'info');
+
+                const response = await fetch(`${API_BASE_URL}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': '*/*',
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        description: description,
+                        isCompleted: false
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.isSuccess) {
+                    // Add to local array
+                    todos.push(result.data);
+                    displayTodos();
+
+                    // Clear modal and close it
+                    document.getElementById('modalTodoTitle').value = '';
+                    document.getElementById('modalTodoDescription').value = '';
+                    closeModal('addTodoModal');
+
+                    showMessage('Todo added successfully!', 'success');
+                } else {
+                    throw new Error(result.message || 'Failed to add todo');
+                }
+            } catch (error) {
+                console.error('Error adding todo:', error);
+                showMessage(`Error adding todo: ${error.message}`, 'error');
+            }
+        }
+
+        // Toggle todo completion status
+        async function toggleTodo(id) {
+            if (!AUTH_TOKEN) {
+                showMessage('Please login to manage todos', 'error');
+                return;
+            }
+
+            const todo = todos.find(t => t.id === id);
+            if (!todo) return;
+
+            try {
+                showMessage('Updating todo...', 'info');
+
+                const response = await fetch(`${API_BASE_URL}/${id}/toggle`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Accept': '*/*',
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.isSuccess) {
+                    // Update local array
+                    todo.isCompleted = !todo.isCompleted;
+                    displayTodos();
+                    showMessage('Todo updated successfully!', 'success');
+                } else {
+                    throw new Error(result.message || 'Failed to update todo');
+                }
+            } catch (error) {
+                console.error('Error updating todo:', error);
+                showMessage(`Error updating todo: ${error.message}`, 'error');
+            }
+        }
+
+        // Open edit modal
+        function openEditModal(id) {
+            if (!AUTH_TOKEN) {
+                showMessage('Please login to manage todos', 'error');
+                return;
+            }
+
+            const todo = todos.find(t => t.id === id);
+            if (!todo) return;
+
+            // Populate modal with current values
+            document.getElementById('editModalTodoTitle').value = todo.title;
+            document.getElementById('editModalTodoDescription').value = todo.description;
+            
+            // Store the todo ID for the update function
+            document.getElementById('editTodoModal').setAttribute('data-todo-id', id);
+            
+            // Open modal
+            openModal('editTodoModal');
+        }
+
+        // Update todo from modal
+        async function updateTodoFromModal() {
+            const id = document.getElementById('editTodoModal').getAttribute('data-todo-id');
+            const title = document.getElementById('editModalTodoTitle').value.trim();
+            const description = document.getElementById('editModalTodoDescription').value.trim();
+
+            if (!title) {
+                showMessage('Title cannot be empty', 'error');
+                return;
+            }
+
+            await updateTodo(id, title, description);
+            
+            // Close modal after successful update
+            closeModal('editTodoModal');
+        }
+
+        // Update todo
+        async function updateTodo(id, title, description) {
+            if (!AUTH_TOKEN) {
+                showMessage('Please login to manage todos', 'error');
+                return;
+            }
+
+            const todo = todos.find(t => t.id === id);
+            if (!todo) return;
+
+            try {
+                showMessage('Updating todo...', 'info');
+
+                const response = await fetch(`${API_BASE_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': '*/*',
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        title: title,
+                        description: description,
+                        isCompleted: todo.isCompleted
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.isSuccess) {
+                    // Update local array
+                    todo.title = title;
+                    todo.description = description;
+                    displayTodos();
+                    showMessage('Todo updated successfully!', 'success');
+                } else {
+                    throw new Error(result.message || 'Failed to update todo');
+                }
+            } catch (error) {
+                console.error('Error updating todo:', error);
+                showMessage(`Error updating todo: ${error.message}`, 'error');
+            }
+        }
+
+        // Delete todo
+        async function deleteTodo(id) {
+            if (!AUTH_TOKEN) {
+                showMessage('Please login to manage todos', 'error');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete this todo?')) {
+                return;
+            }
+
+            try {
+                showMessage('Deleting todo...', 'info');
+
+                const response = await fetch(`${API_BASE_URL}/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': '*/*',
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.isSuccess) {
+                    // Remove from local array
+                    todos = todos.filter(t => t.id !== id);
+                    displayTodos();
+                    showMessage('Todo deleted successfully!', 'success');
+                } else {
+                    throw new Error(result.message || 'Failed to delete todo');
+                }
+            } catch (error) {
+                console.error('Error deleting todo:', error);
+                showMessage(`Error deleting todo: ${error.message}`, 'error');
+            }
+        }
+
+        // Show message to user
+        function showMessage(message, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = message;
+            messageEl.className = type;
+
+            // Auto-hide success and info messages
+            if (type === 'success' || type === 'info') {
+                setTimeout(() => {
+                    messageEl.textContent = '';
+                    messageEl.className = '';
+                }, 3000);
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Modal control functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function openAddModal() {
+            if (!AUTH_TOKEN) {
+                showMessage('Please login to add todos', 'error');
+                return;
+            }
+            
+            // Clear modal fields
+            document.getElementById('modalTodoTitle').value = '';
+            document.getElementById('modalTodoDescription').value = '';
+            
+            openModal('addTodoModal');
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const addModal = document.getElementById('addTodoModal');
+            const editModal = document.getElementById('editTodoModal');
+            
+            if (event.target === addModal) {
+                closeModal('addTodoModal');
+            }
+            if (event.target === editModal) {
+                closeModal('editTodoModal');
+            }
+        }
+
+        // Allow adding todo with Enter key in modal
+        document.getElementById('modalTodoTitle').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                saveTodo();
+            }
+        });
+
+        document.getElementById('editModalTodoTitle').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                updateTodoFromModal();
+            }
+        });
+    </script>
+</body>
+</html>

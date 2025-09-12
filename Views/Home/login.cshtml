@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        .login-container {
+            background-color: #f7f9fc;
+            padding: 40px;
+            border-radius: 10px;
+            border: 3px solid #34356bff;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+            .login-container h2 {
+                margin-bottom: 20px;
+                color: #333;
+            }
+
+            .login-container input {
+                width: 100%;
+                padding: 10px;
+                margin: 10px 0;
+                border-radius: 5px;
+                border: 1px solid #34356bff;
+                box-sizing: border-box;
+            }
+
+            .login-container button {
+                width: 100%;
+                padding: 10px;
+                border: none;
+                background-color: #a3ade2ff;
+                color: white;
+                font-size: 16px;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+
+                .login-container button:hover {
+                    background-color: #3949ab;
+                }
+
+        .message {
+            margin-top: 15px;
+            font-size: 14px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username" />
+        <input type="password" id="password" placeholder="Password" />
+        <button onclick="login()">Login</button>
+        <div class="message" id="message"></div>
+        <div style="margin-top: 15px; text-align: center;">
+            <a href="/register" style="color: #5c6bc0; text-decoration: none;">Don't have an account? Register here</a><br>
+        </div>
+    </div>
+
+    <script>
+        async function login() {
+          const username = document.getElementById('username').value;
+          const password = document.getElementById('password').value;
+          const messageEl = document.getElementById('message');
+          messageEl.textContent = '';
+
+          if (!username || !password) {
+            messageEl.textContent = 'Please enter username and password';
+            return;
+          }
+
+          try {
+            const response = await fetch('/api/Auth/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+
+            if (data.isSuccess) {
+              messageEl.style.color = 'green';
+              messageEl.textContent = data.message;
+
+              // Save token in localStorage
+              localStorage.setItem('token', data.data.token);
+              localStorage.setItem('username', data.data.username);
+
+              // Redirect to main page after successful login
+              setTimeout(() => {
+                window.location.href = '/';
+              }, 1500);
+            } else {
+              messageEl.style.color = 'red';
+              messageEl.textContent = data.message || 'Login failed';
+            }
+          } catch (err) {
+            console.error(err);
+            messageEl.textContent = 'Error connecting to server';
+          }
+        }
+
+
+    </script>
+
+</body>
+</html>
